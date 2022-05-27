@@ -27,6 +27,8 @@ ballSize = {
     "y" : 10
 }
 
+let score1 = 0
+let score2 = 0
 
 function startGame() {
     myGameArea.start()
@@ -34,7 +36,7 @@ function startGame() {
     P1 = new component(40, (canvas.height/2)-(raquetteSize.y/2), raquetteSize.x, raquetteSize.y, "#ffffff")
     P2 = new component(canvas.width - 40, (canvas.height/2)-(raquetteSize.y/2), raquetteSize.x, raquetteSize.y, "#ffffff")
     ball = new component((canvas.width/2)-5, (canvas.height/2)-5, ballSize.x, ballSize.y, "#ffffff")
-    ball.speedX = 0.5 // defini les propriéte de base de la ball
+    ball.speedX = 0.25 // defini les propriéte de base de la ball
     ball.speedY = Math.random()
 }
 
@@ -50,7 +52,7 @@ var myGameArea = {
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height) // set backroung color
 
         document.body.insertBefore(this.canvas, document.body.childNodes[0])
-        this.interval = setInterval(updateGameArea, 20) // calcul le nombre FPS 100/60 == 16 100/50 FPS = 20
+        this.interval = setInterval(updateGameArea, 50) // calcul le nombre FPS 100/60 == 16 100/50 FPS = 20
 
         window.addEventListener('keydown', function (e) { // test
             myGameArea.keys = (myGameArea.keys || []) // recupere la touch enfoncé par l'utilisateur
@@ -61,6 +63,13 @@ var myGameArea = {
                 myGameArea.keys[e.keyCode] = false
             })
         }
+    },
+
+    stop :function() {
+        // clearInterval(this.interval)
+
+        ball.x = (this.width/2)-5
+        ball.y = (this.height/2)-5
     },
 
     clear : function() {
@@ -147,47 +156,95 @@ function updateGameArea() { // rafraichi le jeu pour simuler l'avancement
         ball.speedY = -ball.speedY 
     }
 
-
+    if (ball.x == 21) {
+        score2 += 1
+        document.querySelector("#P2").innerText = score2
+    } else if (ball.x == 774) {
+        score1 += 1
+        document.querySelector("#P1").innerText = score1
+    }
 
     if (ball.x == 20) {
         ball.speedX = 0
         ball.speedY = 0
-        console.log("P1 loose")
+        // myGameArea.stop()
     }
     if (ball.x == 775) {
         ball.speedX = 0
         ball.speedY = 0
-        console.log("P2 loose")
+        // myGameArea.stop()
     }
 
     ball.newPos()
 }
 
-startGame() // condition de demarage !
+let body = document.body
+let div = document.createElement("div")
 
+let scoreP1 = document.createElement("p")
+scoreP1.innerText = "PLAYER 1 : "
+let scoreP2 = document.createElement("p")
+scoreP2.innerText = "PLAYER 2 : "
+let btn = document.createElement("button")
+btn.innerText = "PLAY"
+
+let P1score = document.createElement("span")
+let P2score = document.createElement("span")
+P1score.innerText = 0
+P2score.innerText = 0
+
+
+
+body.prepend(document.createElement("div"))
+
+body.append(div)
+div.append(scoreP1)
+scoreP1.append(P1score)
+div.append(btn)
+div.append(scoreP2)
+scoreP2.append(P2score)
+
+
+
+scoreP1.style.color = "white"
+P1score.id = "P1"
+scoreP2.style.color = "white"
+P2score.id = "P2"
+div.style.display = "flex"
+div.style.justifyContent = "space-evenly"
+div.style.marginTop = "1em"
+body.style.paddingTop = "1em"
+body.style.backgroundColor = "black"
+body.firstElementChild.style.height = "600px"
+body.firstElementChild.style.width = "800px"
+body.firstElementChild.style.backgroundColor = "#2f4f4f"
+body.firstElementChild.style.margin = "auto"
+body.firstElementChild.id = "start"
+
+
+btn.addEventListener("click",function () {
+    if(document.querySelector("#start")){
+        document.querySelector("div").remove()
+    }
+    
+    startGame()// condition de demarage !
+})
+ 
 
 
 function bounceAngle(ballY, playerY) { // determin el'angle de la balle lors du rebond
     let touchArea = (ballY -playerY) + (ballSize.y-1)
     console.log(touchArea)
     if (touchArea >= (raquetteSize.y + ( (ballSize.y-1)*2 ))/2) { // on calcule ici si la balle a touché la partie supérieur ou inférieur du player en divisant par 2 la alrgeur possible d'impact
-        return 1/touchArea  // si partie inférieur j'nvoie vers le bas
+        return (1/touchArea)*2  // si partie inférieur j'nvoie vers le bas
     } else {
-        return -1/touchArea // si partie supérieur j'envoie vers le haut
+        return (-1/touchArea)*2 // si partie supérieur j'envoie vers le haut
     }
 }
 
 
 
 
-// todo list
-
-// functionlancer la partie et fin de partie
-// si balle depasse un utlisateur alors score +1 a l'autre
-// gerer les scores des 2 joueurs 
-// mettre un theme musical en arriere plan
-// mode non retro ? ^^
-// rajout de fonctionalité genre pouvoir ?? evenement tout les 50 rebond rajout d'un cone random ou pouvoir ?
 
 
 // BOUGER 1 touche a la fois  pour l'histore
